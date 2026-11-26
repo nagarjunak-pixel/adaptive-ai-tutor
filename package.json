@@ -1,0 +1,38 @@
+{
+  "name": "adaptive-ai-tutor",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Agentic learning platform with 12 GPT-4o agents for curriculum planning, Socratic tutoring, rubric assessment, and Bayesian mastery tracking (Next.js, PostgreSQL, Prisma).",
+  "license": "Apache-2.0",
+  "author": "Nagarjuna Kamireddy <writetonagarjuna@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nagarjunak-pixel/adaptive-ai-tutor.git"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "prisma:validate": "prisma validate",
+    "prisma:generate": "prisma generate",
+    "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "next": "^14.2.35",
+    "openai": "^4.73.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.6",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitest/coverage-v8": "^2.1.5",
+    "prisma": "^5.22.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}

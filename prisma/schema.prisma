@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Learner {
+  id            String              @id @default(cuid())
+  email         String              @unique
+  displayName   String
+  targetDomain  String
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  masteryStates MasteryState[]
+  plans         CurriculumPlan[]
+  sessions      TutoringSession[]
+  attempts      AssessmentAttempt[]
+}
+
+model ConceptNode {
+  id             String                @id
+  title          String
+  domain         String
+  difficulty     Int                   @default(1)
+  estimatedMins  Int                   @default(25)
+  learningGoals  String[]
+  prerequisites  ConceptPrerequisite[] @relation("ConceptDependsOn")
+  dependents     ConceptPrerequisite[] @relation("ConceptUnlocks")
+  masteryStates  MasteryState[]
+  attempts       AssessmentAttempt[]
+}
+
+model ConceptPrerequisite {
+  conceptId      String
+  prerequisiteId String
+  concept        ConceptNode @relation("ConceptDependsOn", fields: [conceptId], references: [id], onDelete: Cascade)
+  prerequisite   ConceptNode @relation("ConceptUnlocks", fields: [prerequisiteId], references: [id], onDelete: Cascade)
+
+  @@id([conceptId, prerequisiteId])
+}
+
+model MasteryState {
+  id             String      @id @default(cuid())
+  learnerId      String
+  conceptId      String
+  pKnown         Float       @default(0.20)
+  pTransit       Float       @default(0.15)
+  pSlip          Float       @default(0.10)
+  pGuess         Float       @default(0.20)
+  easinessFactor Float       @default(2.5)
+  intervalDays   Int         @default(1)
+  repetitions    Int         @default(0)
+  nextReviewAt   DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  learner        Learner     @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  concept        ConceptNode @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  @@unique([learnerId, conceptId])
+  @@index([learnerId, nextReviewAt])
+}
+
+model CurriculumPlan {
+  id              String   @id @default(cuid())
+  learnerId       String
+  orderedConcepts String[]
+  rationale       String
+  createdAt       DateTime @default(now())
+  learner         Learner  @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+}
+
+model TutoringSession {
+  id          String         @id @default(cuid())
+  learnerId   String
+  conceptId   String
+  activeStage String         @default("diagnostic")
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  learner     Learner        @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  turns       AgentTurnLog[]
+}
+
+model AgentTurnLog {
+  id             String          @id @default(cuid())
+  sessionId      String
+  agentId        String
+  learnerPrompt  String
+  agentResponse  String
+  guardPassed    Boolean         @default(true)
+  latencyMs      Int             @default(0)
+  createdAt      DateTime        @default(now())
+  session        TutoringSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+model AssessmentAttempt {
+  id               String      @id @default(cuid())
+  learnerId        String
+  conceptId        String
+  prompt           String
+  learnerSubmission String
+  rubricScore      Float
+  passed           Boolean
+  misconceptionTag String?
+  feedback         String
+  createdAt        DateTime    @default(now())
+  learner          Learner     @relation(fields: [learnerId], references: [id], onDelete: Cascade)
+  concept          ConceptNode @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+
+  @@index([learnerId, conceptId])
+}
