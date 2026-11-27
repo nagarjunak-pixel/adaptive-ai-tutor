@@ -1,6 +1,6 @@
 {
   "name": "adaptive-ai-tutor",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": false,
   "description": "Agentic learning platform with 12 GPT-4o agents for curriculum planning, Socratic tutoring, rubric assessment, and Bayesian mastery tracking (Next.js, PostgreSQL, Prisma).",
   "license": "Apache-2.0",
